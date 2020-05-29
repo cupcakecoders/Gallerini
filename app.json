@@ -7,6 +7,9 @@
       "android",
       "web"
     ],
+    "facebookScheme": "fb560896468136015",
+    "facebookAppId": "560896468136015",
+    "facebookDisplayName": "Gallerini",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
