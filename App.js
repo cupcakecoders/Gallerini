@@ -1,93 +1,33 @@
 import 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
-import * as Facebook from 'expo-facebook';
+import { createStackNavigator } from '@react-navigation/stack';
+import React, { Fragment } from 'react';
+import HomeScreen from './src/screens/Home'
+import WelcomeScreen from './src/screens/Welcome'
+import SignInScreen from './src/screens/SignIn'
 
-export default function App() {
 
-  const [isLoggedin, setLoggedinStatus] = useState(false);
-  const [userData, setUserData] = useState(null);
-  const [isImageLoading, setImageLoadStatus] = useState(false);
+const Stack = createStackNavigator();
 
-  const facebookLogIn = async () => {
-    try {
-      const {
-        type,
-        token,
-        expires,
-        permissions,
-        declinedPermissions,
-      } = await Facebook.logInWithReadPermissionsAsync('560896468136015', {
-        permissions: ['public_profile'],
-      });
-      if (type === 'success') {
-        // Get the user's name using Facebook's Graph API
-        fetch(`https://graph.facebook.com/me?access_token=${token}&fields=id,name,email,picture.height(500)`)
-          .then(response => response.json())
-          .then(data => {
-            setLoggedinStatus(true);
-            setUserData(data);
-          })
-          .catch(e => console.log(e))
-      } else {
-        // type === 'cancel'
-      }
-    } catch ({ message }) {
-      alert(`Facebook Login Error: ${message}`);
-    }
-  }
-
-  const logout = () => {
-    setLoggedinStatus(false);
-    setUserData(null);
-    setImageLoadStatus(false);
-  }
+function App() {
+  const isLoggedIn = false
   return (
-    isLoggedin ?
-      userData ?
-        <View style={styles.container}>
-          <Image
-            style={{ width: 200, height: 200, borderRadius: 50 }}
-            source={{ uri: userData.picture.data.url }}
-            onLoadEnd={() => setImageLoadStatus(true)} />
-          <ActivityIndicator size="large" color="#0000ff" animating={!isImageLoading} style={{ position: "absolute" }} />
-          <Text style={{ fontSize: 22, marginVertical: 10 }}>Hi {userData.name}!</Text>
-          <TouchableOpacity style={styles.logoutBtn} onPress={logout}>
-            <Text style={{ color: "#fff" }}>Logout</Text>
-          </TouchableOpacity>
-        </View> :
-        null
-      :
-      <View style={styles.container}>
-        <TouchableOpacity style={styles.loginBtn} onPress={facebookLogIn}>
-          <Text style={{ color: "#fff" }}>Login with Facebook</Text>
-        </TouchableOpacity>
-      </View>
+    <NavigationContainer>
+      <Stack.Navigator>
+        {isLoggedIn
+          ? 
+            <Stack.Screen name="Home" component={HomeScreen} />
+          :
+            <Fragment>
+              <Stack.Screen name="Welcome" component={WelcomeScreen} />
+              <Stack.Screen name="Sign In" component={SignInScreen} />
+              <Stack.Screen name="Home" component={HomeScreen} />
+            </Fragment>
+        }
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#e9ebee',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  loginBtn: {
-    backgroundColor: '#4267b2',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 20
-  },
-  logoutBtn: {
-    backgroundColor: 'grey',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 20,
-    position: "absolute",
-    bottom: 0
-  },
-});
+export default App;
 
-console.disableYellowBox = true;
